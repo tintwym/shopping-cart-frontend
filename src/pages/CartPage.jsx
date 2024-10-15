@@ -305,7 +305,7 @@ const CartPage = () => {
                                             Delivery Fee
                                         </dt>
                                         <dd className="text-sm font-medium text-gray-900">
-                                            S$5.00
+                                            S$1.00
                                         </dd>
                                     </div>
                                     <div className="flex items-center justify-between border-t border-gray-200 pt-4">
@@ -319,7 +319,7 @@ const CartPage = () => {
                                                     item.price * item.quantity,
                                                 0
                                             ) +
-                                                5) *
+                                                1) *
                                                 0.09}
                                         </dd>
                                     </div>
@@ -337,7 +337,7 @@ const CartPage = () => {
                                                             item.quantity,
                                                     0
                                                 ) +
-                                                5 +
+                                                1 +
                                                 (cartItems.reduce(
                                                     (acc, item) =>
                                                         acc +
@@ -345,7 +345,7 @@ const CartPage = () => {
                                                             item.quantity,
                                                     0
                                                 ) +
-                                                    5) *
+                                                    1) *
                                                     0.09
                                             ).toFixed(2)}
                                         </dd>
