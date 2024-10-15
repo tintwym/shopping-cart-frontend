@@ -1,9 +1,9 @@
 import React, { useState } from 'react'
 import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline'
-import axios from 'axios'
 import { useNavigate } from 'react-router-dom'
 import { USER_REGISTER } from '@/utilities/constants'
 import toast, { Toaster } from 'react-hot-toast'
+import axiosInstance from '@/api/axiosInstance'
 
 const RegisterPage = () => {
     const [showPassword, setShowPassword] = useState(false)
@@ -70,7 +70,7 @@ const RegisterPage = () => {
         try {
             const url = `${import.meta.env.VITE_BACKEND_URL}${USER_REGISTER}`
 
-            const response = await axios.post(url, data, {
+            const response = await axiosInstance.post(url, data, {
                 headers: {
                     'Content-Type': 'application/json'
                 }

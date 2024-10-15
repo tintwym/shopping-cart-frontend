@@ -11,11 +11,11 @@ import {
 } from '@headlessui/react'
 import { StarIcon } from '@heroicons/react/20/solid'
 import { HeartIcon, MinusIcon, PlusIcon } from '@heroicons/react/24/outline'
-import axios from 'axios'
 import { useParams } from 'react-router-dom'
 import { ADD_TO_CART } from '@/utilities/constants'
 import toast, { Toaster } from 'react-hot-toast'
 import { useCart } from '@/context/CartContext'
+import axiosInstance from '@/api/axiosInstance'
 
 function classNames(...classes) {
     return classes.filter(Boolean).join(' ')
@@ -26,6 +26,7 @@ const ProductDetailPage = () => {
     const [product, setProduct] = useState(null) // Set the product state
     const [selectedColor, setSelectedColor] = useState(null) // Set the color state
     const [loading, setLoading] = useState(true) // Loading state
+    const [reviews, setReviews] = useState([]) // Store reviews
     const { updateCartCount } = useCart()
 
     // Default product details in case the API does not return them
@@ -40,19 +41,21 @@ const ProductDetailPage = () => {
         }
     ]
 
-    // Fetch product data from API
+    // Fetch product data and reviews from API
     useEffect(() => {
         const fetchProduct = async () => {
             try {
-                const response = await axios.get(
-                    `http://localhost:8080/api/products/show/${id}`
-                )
-                const fetchedProduct = response.data
-                setProduct(fetchedProduct) // Set the fetched product data
-                setSelectedColor(fetchedProduct.colors?.[0] || null) // Set default color
+                const [productResponse, reviewsResponse] = await Promise.all([
+                    axiosInstance.get(`/products/show/${id}`),
+                    axiosInstance.get(`/reviews/product/${id}`)
+                ])
+
+                setProduct(productResponse.data) // Set the fetched product data
+                setSelectedColor(productResponse.data.colors?.[0] || null) // Set default color
+                setReviews(reviewsResponse.data) // Set reviews data
                 setLoading(false) // Set loading to false after data is fetched
             } catch (error) {
-                console.error('Error fetching product:', error)
+                console.error('Error fetching product or reviews:', error)
                 setLoading(false) // Ensure loading is set to false in case of error
             }
         }
@@ -79,7 +82,7 @@ const ProductDetailPage = () => {
         }${ADD_TO_CART}?productId=${productId}&quantity=1`
 
         try {
-            await axios.post(
+            await axiosInstance.post(
                 url,
                 {},
                 {
@@ -164,30 +167,6 @@ const ProductDetailPage = () => {
                             </p>
                         </div>
 
-                        {/* Reviews */}
-                        {/* <div className="mt-3">
-                            <h3 className="sr-only">Reviews</h3>
-                            <div className="flex items-center">
-                                <div className="flex items-center">
-                                    {[0, 1, 2, 3, 4].map((rating) => (
-                                        <StarIcon
-                                            key={rating}
-                                            aria-hidden="true"
-                                            className={classNames(
-                                                product.rating > rating
-                                                    ? 'text-teal-500'
-                                                    : 'text-gray-300',
-                                                'h-5 w-5 flex-shrink-0'
-                                            )}
-                                        />
-                                    ))}
-                                </div>
-                                <p className="sr-only">
-                                    {product.rating} out of 5 stars
-                                </p>
-                            </div>
-                        </div> */}
-
                         <div className="mt-6">
                             <h3 className="sr-only">Description</h3>
 
@@ -207,19 +186,6 @@ const ProductDetailPage = () => {
                                 >
                                     Add to bag
                                 </button>
-
-                                {/* <button
-                                    type="button"
-                                    className="ml-4 flex items-center justify-center rounded-md px-3 py-3 text-gray-400 hover:bg-gray-100 hover:text-gray-500"
-                                >
-                                    <HeartIcon
-                                        aria-hidden="true"
-                                        className="h-6 w-6 flex-shrink-0"
-                                    />
-                                    <span className="sr-only">
-                                        Add to favorites
-                                    </span>
-                                </button> */}
                             </div>
                         </div>
 
@@ -232,7 +198,6 @@ const ProductDetailPage = () => {
                             </h2>
 
                             <div className="divide-y divide-gray-200 border-t">
-                                {/* Use hardcoded details if product.details is undefined */}
                                 {(product.details || defaultDetails).map(
                                     (detail) => (
                                         <Disclosure key={detail.name} as="div">
@@ -273,6 +238,99 @@ const ProductDetailPage = () => {
                                         </Disclosure>
                                     )
                                 )}
+
+                                {/* Reviews Section */}
+                                <Disclosure as="div" defaultOpen>
+                                    <h3>
+                                        <DisclosureButton className="group relative flex w-full items-center justify-between py-6 text-left">
+                                            <span className="text-sm font-medium text-gray-900 group-data-[open]:text-teal-600">
+                                                Reviews
+                                            </span>
+                                            <span className="ml-6 flex items-center">
+                                                <PlusIcon
+                                                    aria-hidden="true"
+                                                    className="block h-6 w-6 text-gray-400 group-hover:text-gray-500 group-data-[open]:hidden"
+                                                />
+                                                <MinusIcon
+                                                    aria-hidden="true"
+                                                    className="hidden h-6 w-6 text-teal-400 group-hover:text-teal-500 group-data-[open]:block"
+                                                />
+                                            </span>
+                                        </DisclosureButton>
+                                    </h3>
+                                    <DisclosurePanel className="prose prose-sm pb-6">
+                                        {reviews.length > 0 ? (
+                                            <ul
+                                                role="list"
+                                                className="space-y-6"
+                                            >
+                                                {reviews.map((review) => (
+                                                    <li key={review.id}>
+                                                        <div className="flex items-center justify-between mb-4">
+                                                            <p className="text-sm font-medium text-gray-500">
+                                                                Review by:{' '}
+                                                                {[
+                                                                    review.user
+                                                                        .firstName,
+                                                                    review.user
+                                                                        .lastName
+                                                                ]
+                                                                    .filter(
+                                                                        Boolean
+                                                                    )
+                                                                    .join(' ')}
+                                                            </p>
+
+                                                            <p className="ml-3 text-sm text-gray-400">
+                                                                {new Date(
+                                                                    review.createdAt
+                                                                ).toLocaleDateString()}
+                                                            </p>
+                                                        </div>
+                                                        <div className="flex flex-col sm:flex-row items-start sm:items-center">
+                                                            <div className="flex items-center mb-2 sm:mb-0">
+                                                                <p className="text-sm font-medium text-gray-500 mr-2">
+                                                                    Rating:
+                                                                </p>
+                                                                {[
+                                                                    ...Array(5)
+                                                                ].map(
+                                                                    (
+                                                                        star,
+                                                                        index
+                                                                    ) => (
+                                                                        <StarIcon
+                                                                            key={
+                                                                                index
+                                                                            }
+                                                                            className={classNames(
+                                                                                review.rating >
+                                                                                    index
+                                                                                    ? 'text-yellow-500'
+                                                                                    : 'text-gray-300',
+                                                                                'size-5 flex-shrink-0'
+                                                                            )}
+                                                                            aria-hidden="true"
+                                                                        />
+                                                                    )
+                                                                )}
+                                                            </div>
+                                                        </div>
+                                                        <p className="mt-4 text-sm font-medium text-gray-500">
+                                                            Comment:{' '}
+                                                            {review.comment}
+                                                        </p>
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        ) : (
+                                            <p className="text-sm text-gray-500">
+                                                No reviews available for this
+                                                product.
+                                            </p>
+                                        )}
+                                    </DisclosurePanel>
+                                </Disclosure>
                             </div>
                         </section>
                     </div>

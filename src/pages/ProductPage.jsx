@@ -4,11 +4,11 @@ import {
     ChevronLeftIcon,
     ChevronRightIcon
 } from '@heroicons/react/20/solid'
-import axios from 'axios'
 import { Link } from 'react-router-dom'
 import { PRODUCTS, ADD_TO_CART } from '@/utilities/constants'
 import toast, { Toaster } from 'react-hot-toast'
 import { useCart } from '@/context/CartContext'
+import axiosInstance from '@/api/axiosInstance'
 
 const PRODUCTS_PER_PAGE = parseInt(import.meta.env.VITE_PRODUCTS_PER_PAGE) || 8
 
@@ -28,15 +28,18 @@ export default function ProductPage() {
     useEffect(() => {
         const url = `${import.meta.env.VITE_BACKEND_URL}${PRODUCTS}`
 
-        axios
+        axiosInstance
             .get(url, {
                 headers: {
                     'Content-Type': 'application/json'
                 }
             })
             .then((response) => {
-                setProducts(response.data)
-                setFilteredProducts(response.data) // Initialize filtered products to be the same as products
+                const sortedProducts = response.data.sort((a, b) => {
+                    return new Date(b.created_at) - new Date(a.created_at)
+                })
+                setProducts(sortedProducts)
+                setFilteredProducts(sortedProducts)
             })
             .catch((error) => {
                 console.error('Error fetching products:', error)
@@ -78,7 +81,7 @@ export default function ProductPage() {
         }${ADD_TO_CART}?productId=${productId}&quantity=1`
 
         try {
-            await axios.post(
+            await axiosInstance.post(
                 url,
                 {},
                 {
@@ -264,7 +267,7 @@ export default function ProductPage() {
                                                 {product.name}
                                             </Link>
                                         </h3>
-                                        <p className="mt-1 text-sm text-gray-500 h-44 text-ellipsis overflow-hidden">
+                                        <p className="mt-1 text-sm text-gray-500 h-44">
                                             {product.description}
                                         </p>
                                     </div>

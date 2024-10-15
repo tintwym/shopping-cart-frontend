@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline'
-import axios from 'axios'
+import axiosInstance from '@/api/axiosInstance'
 import { USER_LOGIN } from '@/utilities/constants'
 
 const LoginPage = () => {
@@ -18,7 +18,7 @@ const LoginPage = () => {
         e.preventDefault()
 
         try {
-            const response = await axios.post(
+            const response = await axiosInstance.post(
                 `${import.meta.env.VITE_BACKEND_URL}${USER_LOGIN}`,
                 {
                     username,
@@ -40,7 +40,7 @@ const LoginPage = () => {
             window.location.href = '/'
         } catch (error) {
             // Handle login errors
-            setErrorMessage('Invalid Credentials!')
+            setErrorMessage('Uesrname or password is incorrect!')
         }
     }
 

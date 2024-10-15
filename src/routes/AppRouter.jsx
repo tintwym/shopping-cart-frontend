@@ -9,6 +9,7 @@ import NotFoundPage from '@/pages/NotFoundPage'
 import RegisterPage from '@/pages/RegisterPage'
 import UserProfilePage from '@/pages/UserProfilePage'
 import ReviewPage from '@/pages/ReviewPage'
+import PaymentSuccessPage from '@/pages/PaymentSuccessPage'
 
 // Check if the user is authenticated by checking for a token in localStorage
 const isAuthenticated = () => {
@@ -92,10 +93,18 @@ const AppRouter = () => {
                 }
             />
             <Route
-                path="/products/reviews/create"
+                path="/products/:productId/reviews/:orderItemId/create"
                 element={
                     <Layout>
                         <ReviewPage />
+                    </Layout>
+                }
+            />
+            <Route
+                path="/payment/success"
+                element={
+                    <Layout>
+                        <PaymentSuccessPage />
                     </Layout>
                 }
             />

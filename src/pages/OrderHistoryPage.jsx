@@ -1,10 +1,10 @@
 import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react'
 import { EllipsisVerticalIcon } from '@heroicons/react/24/outline'
 import { CheckCircleIcon } from '@heroicons/react/20/solid'
-import axios from 'axios'
 import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { ORDER_HISTORY } from '@/utilities/constants' // You can define this constant as `/api/orders/history`
+import { ORDER_HISTORY } from '@/utilities/constants' // Assuming constant is already defined
+import axiosInstance from '@/api/axiosInstance'
 
 const OrderHistoryPage = () => {
     const [orders, setOrders] = useState([]) // State to hold orders
@@ -20,7 +20,7 @@ const OrderHistoryPage = () => {
             }
 
             try {
-                const response = await axios.get(
+                const response = await axiosInstance.get(
                     `${import.meta.env.VITE_BACKEND_URL}${ORDER_HISTORY}`,
                     {
                         headers: {
@@ -182,96 +182,100 @@ const OrderHistoryPage = () => {
                                         role="list"
                                         className="divide-y divide-gray-200"
                                     >
-                                        {order.orderItems.map((product) => (
-                                            <li
-                                                key={product.id}
-                                                className="p-4 sm:p-6"
-                                            >
-                                                <div className="flex items-center sm:items-start">
-                                                    <div className="h-20 w-20 flex-shrink-0 overflow-hidden rounded-lg bg-gray-200 sm:h-40 sm:w-40">
-                                                        <img
-                                                            alt={
-                                                                product.product
-                                                                    .name
-                                                            }
-                                                            src={`http://localhost:8080/images/products/${product.product.images[0].path}`}
-                                                            className="h-full w-full object-contain object-center bg-white"
-                                                        />
-                                                    </div>
-                                                    <div className="ml-6 flex-1 text-sm">
-                                                        <div className="font-medium text-gray-900 sm:flex sm:justify-between">
-                                                            <h5>
-                                                                {
+                                        {order.orderItems.map(
+                                            (product, index) => (
+                                                <li
+                                                    key={product.id}
+                                                    className="p-4 sm:p-6"
+                                                >
+                                                    <div className="flex items-center sm:items-start">
+                                                        <div className="h-20 w-20 flex-shrink-0 overflow-hidden rounded-lg bg-gray-200 sm:h-40 sm:w-40">
+                                                            <img
+                                                                alt={
                                                                     product
                                                                         .product
                                                                         .name
                                                                 }
-                                                            </h5>
-                                                            <p className="text-sm font-medium text-gray-500">
-                                                                Quantity:{' '}
-                                                                {
-                                                                    product.quantity
-                                                                }
-                                                            </p>
-                                                            <p className="mt-2 sm:mt-0 text-gray-500">
-                                                                Price per Item:
-                                                                S$
+                                                                src={`http://localhost:8080/images/products/${product.product.images[0].path}`}
+                                                                className="h-full w-full object-cover object-center"
+                                                            />
+                                                        </div>
+                                                        <div className="ml-6 flex-1 text-sm">
+                                                            <div className="font-medium text-gray-900 sm:flex sm:justify-between">
+                                                                <h5>
+                                                                    {
+                                                                        product
+                                                                            .product
+                                                                            .name
+                                                                    }
+                                                                </h5>
+                                                                <p className="text-sm font-medium text-gray-500">
+                                                                    Quantity:{' '}
+                                                                    {
+                                                                        product.quantity
+                                                                    }
+                                                                </p>
+                                                                <p className="mt-2 sm:mt-0 text-gray-500">
+                                                                    Price per
+                                                                    Item: S$
+                                                                    {
+                                                                        product
+                                                                            .product
+                                                                            .price
+                                                                    }
+                                                                </p>
+                                                            </div>
+                                                            <p className="hidden text-gray-500 sm:mt-2 sm:block">
                                                                 {
                                                                     product
                                                                         .product
-                                                                        .price
+                                                                        .description
                                                                 }
                                                             </p>
                                                         </div>
-                                                        <p className="hidden text-gray-500 sm:mt-2 sm:block">
-                                                            {
-                                                                product.product
-                                                                    .description
-                                                            }
-                                                        </p>
-                                                    </div>
-                                                </div>
-
-                                                <div className="mt-6 sm:flex sm:justify-between">
-                                                    <div className="flex items-center">
-                                                        <CheckCircleIcon
-                                                            aria-hidden="true"
-                                                            className="h-5 w-5 text-green-500"
-                                                        />
-                                                        <p className="ml-2 text-sm font-medium text-gray-500">
-                                                            Ordered on{' '}
-                                                            <time
-                                                                dateTime={
-                                                                    order.updatedAt
-                                                                }
-                                                            >
-                                                                {new Date(
-                                                                    order.updatedAt
-                                                                ).toLocaleDateString()}
-                                                            </time>
-                                                        </p>
                                                     </div>
 
-                                                    <div className="mt-6 flex items-center space-x-4 divide-x divide-gray-200 border-t border-gray-200 pt-4 text-sm font-medium sm:ml-4 sm:mt-0 sm:border-none sm:pt-0">
-                                                        <div className="flex flex-1 justify-center space-x-8">
-                                                            <Link
-                                                                to={`/products/reviews/create`}
-                                                                className="whitespace-nowrap text-teal-600 hover:text-teal-500"
-                                                            >
-                                                                Add Review
-                                                            </Link>
+                                                    <div className="mt-6 sm:flex sm:justify-between">
+                                                        <div className="flex items-center">
+                                                            <CheckCircleIcon
+                                                                aria-hidden="true"
+                                                                className="h-5 w-5 text-green-500"
+                                                            />
+                                                            <p className="ml-2 text-sm font-medium text-gray-500">
+                                                                Ordered on{' '}
+                                                                <time
+                                                                    dateTime={
+                                                                        order.updatedAt
+                                                                    }
+                                                                >
+                                                                    {new Date(
+                                                                        order.updatedAt
+                                                                    ).toLocaleDateString()}
+                                                                </time>
+                                                            </p>
+                                                        </div>
 
-                                                            <Link
-                                                                to={`/products/${product.product.id}`}
-                                                                className="whitespace-nowrap text-teal-600 hover:text-teal-500"
-                                                            >
-                                                                View Product
-                                                            </Link>
+                                                        <div className="mt-6 flex items-center space-x-4 divide-x divide-gray-200 border-t border-gray-200 pt-4 text-sm font-medium sm:ml-4 sm:mt-0 sm:border-none sm:pt-0">
+                                                            <div className="flex flex-1 justify-center space-x-8">
+                                                                <Link
+                                                                    to={`/products/${product.product.id}/reviews/${order.orderItems[index].id}/create`}
+                                                                    className="whitespace-nowrap text-teal-600 hover:text-teal-500"
+                                                                >
+                                                                    Add Review
+                                                                </Link>
+
+                                                                <Link
+                                                                    to={`/products/${product.product.id}`}
+                                                                    className="whitespace-nowrap text-teal-600 hover:text-teal-500"
+                                                                >
+                                                                    View Product
+                                                                </Link>
+                                                            </div>
                                                         </div>
                                                     </div>
-                                                </div>
-                                            </li>
-                                        ))}
+                                                </li>
+                                            )
+                                        )}
                                     </ul>
                                 </div>
                             ))}

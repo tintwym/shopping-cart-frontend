@@ -4,16 +4,21 @@ import {
     ShoppingBagIcon,
     XMarkIcon
 } from '@heroicons/react/20/solid'
-import axios from 'axios'
 import { useState, useEffect } from 'react'
-import { CART, REMOVE_FROM_CART, UPDATE_CART } from '@/utilities/constants' // Add UPDATE_CART constant
-import { useCart } from '@/context/CartContext' // Import the useCart hook
+import { CART, REMOVE_FROM_CART, UPDATE_CART } from '@/utilities/constants'
+import { useCart } from '@/context/CartContext'
+import { loadStripe } from '@stripe/stripe-js'
+import axiosInstance from '@/api/axiosInstance'
+
+// Initialize Stripe with the publishable key from your environment
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY)
 
 const CartPage = () => {
     const [cartItems, setCartItems] = useState([])
     const [loading, setLoading] = useState(true)
-    const { updateCartCount } = useCart() // Destructure updateCartCount
+    const { updateCartCount } = useCart()
 
+    // Fetch cart items when component mounts
     useEffect(() => {
         const fetchCartItems = async () => {
             const token = localStorage.getItem('token')
@@ -23,7 +28,7 @@ const CartPage = () => {
             }
 
             try {
-                const response = await axios.get(
+                const response = await axiosInstance.get(
                     `${import.meta.env.VITE_BACKEND_URL}${CART}`,
                     {
                         headers: {
@@ -51,7 +56,7 @@ const CartPage = () => {
         }
 
         try {
-            await axios.delete(
+            await axiosInstance.delete(
                 `${import.meta.env.VITE_BACKEND_URL}${REMOVE_FROM_CART}`,
                 {
                     headers: {
@@ -62,13 +67,10 @@ const CartPage = () => {
                     }
                 }
             )
-
-            // After deleting, remove the item from the local state
             setCartItems((prevItems) =>
                 prevItems.filter((item) => item.product.id !== productId)
             )
-
-            updateCartCount() // Trigger cart count update after removing item
+            updateCartCount()
         } catch (error) {
             console.error('Error removing item from cart:', error)
         }
@@ -76,7 +78,6 @@ const CartPage = () => {
 
     // Function to handle quantity changes
     const handleQuantityChange = async (productId, newQuantity) => {
-        // Update quantity in the local state
         setCartItems((prevItems) =>
             prevItems.map((item) =>
                 item.product.id === productId
@@ -85,11 +86,10 @@ const CartPage = () => {
             )
         )
 
-        // Update cart item in the database
         try {
             const token = localStorage.getItem('token')
             if (token) {
-                await axios.put(
+                await axiosInstance.put(
                     `${import.meta.env.VITE_BACKEND_URL}${UPDATE_CART}`,
                     null,
                     {
@@ -102,13 +102,14 @@ const CartPage = () => {
                         }
                     }
                 )
-                updateCartCount() // Trigger cart count update after changing quantity
+                updateCartCount()
             }
         } catch (error) {
             console.error('Error updating cart item:', error)
         }
     }
 
+    // Function to handle Stripe checkout
     const handleCheckout = async () => {
         const token = localStorage.getItem('token')
         if (!token) {
@@ -117,17 +118,29 @@ const CartPage = () => {
         }
 
         try {
-            await axios.post(
+            const response = await axiosInstance.post(
                 `${import.meta.env.VITE_BACKEND_URL}/checkout`,
-                null,
+                {
+                    items: cartItems.map((item) => ({
+                        productId: item.product.stripeProductId,
+                        priceId: item.product.stripePriceId,
+                        quantity: item.quantity
+                    }))
+                },
                 {
                     headers: {
                         Authorization: `Bearer ${token}`
                     }
                 }
             )
-            // Optionally: Redirect to order confirmation page after successful checkout
-            window.location.href = '/order-history'
+
+            const { sessionId } = response.data
+            if (sessionId) {
+                const stripe = await stripePromise
+                await stripe.redirectToCheckout({ sessionId })
+            } else {
+                console.error('No sessionId received from the backend.')
+            }
         } catch (error) {
             console.error('Error during checkout:', error)
         }
@@ -167,6 +180,7 @@ const CartPage = () => {
                             Shopping Cart
                         </h1>
                         <div className="mt-12 lg:grid lg:grid-cols-12 lg:items-start lg:gap-x-12 xl:gap-x-16">
+                            {/* Cart Items */}
                             <section
                                 aria-labelledby="cart-heading"
                                 className="lg:col-span-7"
@@ -174,7 +188,6 @@ const CartPage = () => {
                                 <h2 id="cart-heading" className="sr-only">
                                     Items in your shopping cart
                                 </h2>
-
                                 <ul
                                     role="list"
                                     className="divide-y divide-gray-200 border-b border-t border-gray-200"
@@ -210,19 +223,10 @@ const CartPage = () => {
                                                             </h3>
                                                         </div>
                                                         <p className="mt-1 text-sm font-medium text-gray-900">
-                                                            S$
-                                                            {item.price}
+                                                            S${item.price}
                                                         </p>
                                                     </div>
-
                                                     <div className="mt-4 sm:mt-0 sm:pr-9">
-                                                        <label
-                                                            htmlFor={`quantity-${idx}`}
-                                                            className="sr-only"
-                                                        >
-                                                            Quantity,{' '}
-                                                            {item.product.name}
-                                                        </label>
                                                         <input
                                                             id={`quantity-${idx}`}
                                                             name={`quantity-${idx}`}
@@ -238,14 +242,11 @@ const CartPage = () => {
                                                                     parseInt(
                                                                         e.target
                                                                             .value
-                                                                    ),
-                                                                    item.product
-                                                                        .stock
+                                                                    )
                                                                 )
                                                             }
                                                             className="w-1/2 rounded-md border border-gray-300 py-1.5 px-4 text-left text-base font-medium leading-5 text-gray-700 shadow-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500 sm:text-sm"
                                                         />
-
                                                         <div className="absolute right-0 top-0">
                                                             <button
                                                                 type="button"
@@ -271,44 +272,16 @@ const CartPage = () => {
                                                         </div>
                                                     </div>
                                                 </div>
-
-                                                {/* <p className="mt-4 flex space-x-2 text-sm text-gray-700">
-                                                    {item.product.stock > 0 ? (
-                                                        <CheckIcon
-                                                            aria-hidden="true"
-                                                            className="h-5 w-5 flex-shrink-0 text-green-500"
-                                                        />
-                                                    ) : (
-                                                        <ClockIcon
-                                                            aria-hidden="true"
-                                                            className="h-5 w-5 flex-shrink-0 text-gray-300"
-                                                        />
-                                                    )}
-
-                                                    <span>
-                                                        {item.product.stock > 0
-                                                            ? 'In stock'
-                                                            : 'Out of stock'}
-                                                    </span>
-                                                </p> */}
                                             </div>
                                         </li>
                                     ))}
                                 </ul>
                             </section>
-
-                            {/* Order summary */}
-                            <section
-                                aria-labelledby="summary-heading"
-                                className="mt-16 rounded-lg bg-gray-50 px-4 py-6 sm:p-6 lg:col-span-5 lg:mt-0 lg:p-8"
-                            >
-                                <h2
-                                    id="summary-heading"
-                                    className="text-lg font-medium text-gray-900"
-                                >
+                            {/* Order Summary */}
+                            <section className="mt-16 rounded-lg bg-gray-50 px-4 py-6 sm:p-6 lg:col-span-5 lg:mt-0 lg:p-8">
+                                <h2 className="text-lg font-medium text-gray-900">
                                     Order summary
                                 </h2>
-
                                 <dl className="mt-6 space-y-4">
                                     <div className="flex items-center justify-between">
                                         <dt className="text-sm text-gray-600">
@@ -335,29 +308,21 @@ const CartPage = () => {
                                             S$5.00
                                         </dd>
                                     </div>
-
-                                    {/* Calculate tax as 9% on the subtotal + shipping */}
                                     <div className="flex items-center justify-between border-t border-gray-200 pt-4">
                                         <dt className="text-sm text-gray-600">
                                             Tax (GST - 9%)
                                         </dt>
                                         <dd className="text-sm font-medium text-gray-900">
-                                            S$
-                                            {(
-                                                (cartItems.reduce(
-                                                    (acc, item) =>
-                                                        acc +
-                                                        item.price *
-                                                            item.quantity,
-                                                    0
-                                                ) +
-                                                    5) *
-                                                0.09
-                                            ).toFixed(2)}
+                                            {(cartItems.reduce(
+                                                (acc, item) =>
+                                                    acc +
+                                                    item.price * item.quantity,
+                                                0
+                                            ) +
+                                                5) *
+                                                0.09}
                                         </dd>
                                     </div>
-
-                                    {/* Calculate the total, including tax */}
                                     <div className="flex items-center justify-between border-t border-gray-200 pt-4">
                                         <dt className="text-base font-medium text-gray-900">
                                             Order total
@@ -386,15 +351,12 @@ const CartPage = () => {
                                         </dd>
                                     </div>
                                 </dl>
-
-                                <div className="mt-6">
-                                    <button
-                                        onClick={handleCheckout}
-                                        className="w-full rounded-md border border-transparent bg-teal-600 px-4 py-3 text-base font-medium text-white shadow-sm hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 focus:ring-offset-gray-50"
-                                    >
-                                        Checkout
-                                    </button>
-                                </div>
+                                <button
+                                    onClick={handleCheckout}
+                                    className="w-full mt-6 rounded-md border border-transparent bg-teal-600 px-4 py-3 text-base font-medium text-white shadow-sm hover:bg-teal-700"
+                                >
+                                    Checkout
+                                </button>
                             </section>
                         </div>
                     </>

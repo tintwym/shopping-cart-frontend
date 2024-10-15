@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import axios from 'axios'
+import axiosInstance from '@/api/axiosInstance'
 import toast, { Toaster } from 'react-hot-toast'
 
 const UserProfilePage = () => {
@@ -31,8 +31,8 @@ const UserProfilePage = () => {
         }
 
         // Call API to get the profile (address) data
-        axios
-            .get('http://localhost:8080/api/users/profiles/show', {
+        axiosInstance
+            .get('/users/profiles/show', {
                 headers: {
                     Authorization: `Bearer ${token}`
                 }
@@ -67,8 +67,8 @@ const UserProfilePage = () => {
         }
 
         // Call API to get user details
-        axios
-            .get('http://localhost:8080/api/users/token', {
+        axiosInstance
+            .get('/users/token', {
                 headers: {
                     Authorization: `Bearer ${token}`
                 }
@@ -109,16 +109,12 @@ const UserProfilePage = () => {
         }
 
         try {
-            await axios.post(
-                'http://localhost:8080/api/users/profiles/update',
-                formData,
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                        'Content-Type': 'application/json'
-                    }
+            await axiosInstance.post('/users/profiles/update', formData, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    'Content-Type': 'application/json'
                 }
-            )
+            })
             toast.success('Profile updated successfully!')
         } catch (error) {
             console.error('Error updating profile:', error)

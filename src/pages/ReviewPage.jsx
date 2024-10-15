@@ -1,10 +1,10 @@
 import React, { useState } from 'react'
-import axios from 'axios'
 import { useParams } from 'react-router-dom'
 import { Toaster, toast } from 'react-hot-toast'
+import axiosInstance from '@/api/axiosInstance'
 
 const ReviewPage = () => {
-    const { productId, orderItemId } = useParams() // Get productId and orderItemId from the URL or props
+    const { productId, orderItemId } = useParams()
     const [comment, setComment] = useState('')
     const [rating, setRating] = useState(0)
 
@@ -18,8 +18,8 @@ const ReviewPage = () => {
         }
 
         try {
-            const response = await axios.post(
-                'http://localhost:8080/api/reviews/store',
+            await axiosInstance.post(
+                '/reviews/store',
                 {
                     comment,
                     rating,
@@ -56,7 +56,7 @@ const ReviewPage = () => {
                     </label>
                     <select
                         value={rating}
-                        onChange={(e) => setRating(e.target.value)}
+                        onChange={(e) => setRating(Number(e.target.value))}
                         className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm"
                     >
                         <option value="0" disabled>
