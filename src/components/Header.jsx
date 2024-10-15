@@ -63,21 +63,20 @@ const Header = () => {
 
     return (
         <header className="sticky top-0 z-50 bg-teal-600 text-white shadow-md">
-            {' '}
             {/* Sticky navbar with shadow */}
             <nav
                 aria-label="Global"
                 className="flex items-center justify-between p-6 lg:px-16 py-0"
             >
                 <div className="flex lg:flex-1">
-                    <a href="/" className="-m-1.5 p-1.5">
+                    <Link to="/" className="-m-1.5 p-1.5">
                         <span className="sr-only">Pixel Tech</span>
                         <img
                             alt="Pixel Tech"
                             src="/logo.svg"
                             className="max-h-24 w-auto"
                         />
-                    </a>
+                    </Link>
                 </div>
 
                 <div className="hidden lg:flex lg:flex-1 lg:justify-end">
@@ -98,7 +97,7 @@ const Header = () => {
                                     </span>
                                     <ChevronDownIcon
                                         aria-hidden="true"
-                                        className="ml-1 size-6 text-gray-400"
+                                        className="ml-1 size-6 text-white"
                                     />
                                 </MenuButton>
                                 <MenuItems
@@ -107,20 +106,20 @@ const Header = () => {
                                 >
                                     <div className="py-1">
                                         <MenuItem>
-                                            <a
-                                                href="/profile"
+                                            <Link
+                                                to="/profile"
                                                 className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                                             >
                                                 Profile
-                                            </a>
+                                            </Link>
                                         </MenuItem>
                                         <MenuItem>
-                                            <a
-                                                href="/order-history"
+                                            <Link
+                                                to="/order-history"
                                                 className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                                             >
                                                 Order History
-                                            </a>
+                                            </Link>
                                         </MenuItem>
                                         <MenuItem>
                                             <button
@@ -135,24 +134,24 @@ const Header = () => {
                                 </MenuItems>
                             </Menu>
                         ) : (
-                            <a href="/login">
+                            <Link to="/login">
                                 <div className="flex items-center space-x-3">
                                     <UserIcon className="h-6 w-6" />
                                     <span className="font-semibold">
                                         Account
                                     </span>
                                 </div>
-                            </a>
+                            </Link>
                         )}
 
-                        <a href="/cart" className="relative">
+                        <Link to="/cart" className="relative">
                             <ShoppingCartIcon className="size-6" />
                             {cartCount > 0 && (
                                 <span className="absolute -top-4 -right-4 bg-teal-500 text-white text-xs rounded-full size-6 flex items-center justify-center">
                                     {cartCount > 99 ? '∞' : cartCount}
                                 </span>
                             )}
-                        </a>
+                        </Link>
                     </div>
                 </div>
 
@@ -175,13 +174,13 @@ const Header = () => {
                 <div className="fixed inset-0 z-50" />
                 <DialogPanel className="fixed inset-y-0 right-0 z-50 w-full overflow-y-auto bg-white px-6 py-6 sm:max-w-sm sm:ring-1 sm:ring-gray-900/10">
                     <div className="flex items-center justify-between">
-                        <a href="/" className="-m-1.5 p-1.5">
+                        <Link to="/" className="-m-1.5 p-1.5">
                             <img
                                 alt="Pixel Tech"
                                 src="/logo.svg"
                                 className="h-16 w-auto"
                             />
-                        </a>
+                        </Link>
                         <button
                             type="button"
                             onClick={() => setMobileMenuOpen(false)}
@@ -227,12 +226,12 @@ const Header = () => {
                                         Logout
                                     </button>
                                 ) : (
-                                    <a
-                                        href="/login"
+                                    <Link
+                                        to="/login"
                                         className="block rounded-lg px-3 py-2.5 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50"
                                     >
                                         Log in
-                                    </a>
+                                    </Link>
                                 )}
                             </div>
                         </div>

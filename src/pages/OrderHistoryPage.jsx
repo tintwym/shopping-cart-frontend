@@ -27,7 +27,11 @@ const OrderHistoryPage = () => {
                         }
                     }
                 )
-                setOrders(response.data) // Set the orders data from the API
+                // Sort orders by 'createdAt' in descending order (latest first)
+                const sortedOrders = response.data.sort(
+                    (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+                )
+                setOrders(sortedOrders) // Set the sorted orders data
             } catch (error) {
                 console.error('Error fetching order history:', error)
             } finally {
@@ -71,7 +75,7 @@ const OrderHistoryPage = () => {
                                     className="border-b border-t border-gray-200 bg-white shadow-sm sm:rounded-lg sm:border"
                                 >
                                     <div className="flex items-center border-b border-gray-200 p-4 sm:grid sm:grid-cols-4 sm:gap-x-6 sm:p-6">
-                                        <dl className="grid flex-1 grid-cols-2 gap-x-6 text-sm sm:col-span-3 sm:grid-cols-3 lg:col-span-2">
+                                        <dl className="grid flex-1 grid-cols-2 gap-x-6 text-sm sm:col-span-3 sm:grid-cols-3 lg:col-span-12">
                                             <div>
                                                 <dt className="font-medium text-gray-900">
                                                     Order number
@@ -185,7 +189,8 @@ const OrderHistoryPage = () => {
                                                                     product.quantity
                                                                 }
                                                             </p>
-                                                            <p className="mt-2 sm:mt-0">
+                                                            <p className="mt-2 sm:mt-0 text-gray-500">
+                                                                Price per Item:
                                                                 S$
                                                                 {
                                                                     product

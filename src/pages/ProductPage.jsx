@@ -1,15 +1,22 @@
 import { useRef, useEffect, useState } from 'react'
-import { MagnifyingGlassIcon } from '@heroicons/react/20/solid'
+import {
+    MagnifyingGlassIcon,
+    ChevronLeftIcon,
+    ChevronRightIcon
+} from '@heroicons/react/20/solid'
 import axios from 'axios'
 import { Link } from 'react-router-dom'
 import { PRODUCTS, ADD_TO_CART } from '@/utilities/constants'
 import toast, { Toaster } from 'react-hot-toast'
 import { useCart } from '@/context/CartContext'
 
+const PRODUCTS_PER_PAGE = parseInt(import.meta.env.VITE_PRODUCTS_PER_PAGE) || 8
+
 export default function ProductPage() {
     const [products, setProducts] = useState([])
     const [filteredProducts, setFilteredProducts] = useState([])
     const [searchQuery, setSearchQuery] = useState('')
+    const [currentPage, setCurrentPage] = useState(1) // Track the current page
     const productsRef = useRef(null)
     const { updateCartCount } = useCart()
 
@@ -54,6 +61,7 @@ export default function ProductPage() {
             // If search query is empty, show all products
             setFilteredProducts(products)
         }
+        setCurrentPage(1) // Reset to the first page when search query changes
     }, [searchQuery, products])
 
     // Add product to cart
@@ -94,6 +102,100 @@ export default function ProductPage() {
         }
     }
 
+    // Calculate the number of pages required
+    const totalPages = Math.ceil(filteredProducts.length / PRODUCTS_PER_PAGE)
+
+    // Get the products to display for the current page
+    const currentProducts = filteredProducts.slice(
+        (currentPage - 1) * PRODUCTS_PER_PAGE,
+        currentPage * PRODUCTS_PER_PAGE
+    )
+
+    // Handle page change
+    const handlePageChange = (pageNumber) => {
+        setCurrentPage(pageNumber)
+        scrollToProducts()
+    }
+
+    // Create page numbers with '...' logic
+    const renderPageNumbers = () => {
+        const pageNumbers = []
+
+        // Always show the first 3 and last 3 pages
+        if (totalPages <= 7) {
+            for (let i = 1; i <= totalPages; i++) {
+                pageNumbers.push(i)
+            }
+        } else {
+            if (currentPage <= 3) {
+                pageNumbers.push(
+                    1,
+                    2,
+                    3,
+                    '...',
+                    totalPages - 2,
+                    totalPages - 1,
+                    totalPages
+                )
+            } else if (currentPage > 3 && currentPage < totalPages - 2) {
+                pageNumbers.push(
+                    1,
+                    '...',
+                    currentPage - 1,
+                    currentPage,
+                    currentPage + 1,
+                    '...',
+                    totalPages
+                )
+            } else {
+                pageNumbers.push(
+                    1,
+                    '...',
+                    totalPages - 4,
+                    totalPages - 3,
+                    totalPages - 2,
+                    totalPages - 1,
+                    totalPages
+                )
+            }
+        }
+
+        return pageNumbers.map((pageNumber, index) =>
+            pageNumber === '...' ? (
+                <span key={index} className="px-2 py-2">
+                    ...
+                </span>
+            ) : (
+                <button
+                    key={index}
+                    onClick={() => handlePageChange(pageNumber)}
+                    className={`px-4 py-2 rounded-md ${
+                        currentPage === pageNumber
+                            ? 'bg-teal-600 text-white'
+                            : 'bg-gray-100 text-gray-700'
+                    }`}
+                >
+                    {pageNumber}
+                </button>
+            )
+        )
+    }
+
+    // Handle next and previous page
+    const handleNextPage = () => {
+        if (currentPage < totalPages) {
+            setCurrentPage(currentPage + 1)
+            scrollToProducts()
+        }
+    }
+
+    const handlePrevPage = () => {
+        if (currentPage > 1) {
+            setCurrentPage(currentPage - 1)
+            scrollToProducts()
+        }
+    }
+
     return (
         <main>
             <div className="mx-auto max-w-2xl px-4 py-16 sm:px-6 sm:py-12 lg:max-w-7xl lg:px-8">
@@ -122,7 +224,7 @@ export default function ProductPage() {
                     ref={productsRef}
                     className="mt-8 grid grid-cols-1 gap-y-12 sm:grid-cols-2 sm:gap-x-6 lg:grid-cols-4 xl:gap-x-8"
                 >
-                    {filteredProducts.map((product) => (
+                    {currentProducts.map((product) => (
                         <div key={product.id}>
                             <div>
                                 <div className="relative">
@@ -199,6 +301,42 @@ export default function ProductPage() {
                         </div>
                     ))}
                 </div>
+
+                {/* Pagination */}
+                {totalPages > 1 && (
+                    <div className="mt-8 flex justify-center space-x-2">
+                        {/* Prev Button */}
+                        <button
+                            onClick={handlePrevPage}
+                            className={`flex items-center px-4 py-2 rounded-md ${
+                                currentPage === 1
+                                    ? 'cursor-not-allowed'
+                                    : 'bg-gray-100 text-gray-700'
+                            }`}
+                            disabled={currentPage === 1}
+                        >
+                            <ChevronLeftIcon className="w-5 h-5" />
+                            <span>Prev</span>
+                        </button>
+
+                        {/* Page numbers */}
+                        {renderPageNumbers()}
+
+                        {/* Next Button */}
+                        <button
+                            onClick={handleNextPage}
+                            className={`flex items-center px-4 py-2 rounded-md ${
+                                currentPage === totalPages
+                                    ? 'cursor-not-allowed'
+                                    : 'bg-gray-100 text-gray-700'
+                            }`}
+                            disabled={currentPage === totalPages}
+                        >
+                            <span>Next</span>
+                            <ChevronRightIcon className="w-5 h-5" />
+                        </button>
+                    </div>
+                )}
             </div>
         </main>
     )

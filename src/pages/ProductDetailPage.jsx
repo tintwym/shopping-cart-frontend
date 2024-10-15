@@ -32,14 +32,7 @@ const ProductDetailPage = () => {
     const defaultDetails = [
         {
             name: 'Features',
-            items: [
-                'High performance',
-                'Elegant design',
-                'Retina display',
-                'Face ID',
-                'USB-C port',
-                'LiDAR Scanner'
-            ]
+            items: ['Delivery to your door', '1 year warranty', 'Easy returns']
         }
     ]
 
@@ -168,7 +161,7 @@ const ProductDetailPage = () => {
                         </div>
 
                         {/* Reviews */}
-                        <div className="mt-3">
+                        {/* <div className="mt-3">
                             <h3 className="sr-only">Reviews</h3>
                             <div className="flex items-center">
                                 <div className="flex items-center">
@@ -189,7 +182,7 @@ const ProductDetailPage = () => {
                                     {product.rating} out of 5 stars
                                 </p>
                             </div>
-                        </div>
+                        </div> */}
 
                         <div className="mt-6">
                             <h3 className="sr-only">Description</h3>
@@ -257,10 +250,16 @@ const ProductDetailPage = () => {
                                                 </DisclosureButton>
                                             </h3>
                                             <DisclosurePanel className="prose prose-sm pb-6">
-                                                <ul role="list">
+                                                <ul
+                                                    role="list"
+                                                    className="space-y-2"
+                                                >
                                                     {detail.items.map(
                                                         (item) => (
-                                                            <li key={item}>
+                                                            <li
+                                                                key={item}
+                                                                className="text-sm"
+                                                            >
                                                                 {item}
                                                             </li>
                                                         )
