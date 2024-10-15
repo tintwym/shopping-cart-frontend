@@ -32,7 +32,11 @@ const ProductDetailPage = () => {
     const defaultDetails = [
         {
             name: 'Features',
-            items: ['Delivery to your door', '1 year warranty', 'Easy returns']
+            items: [
+                '* Delivery to your door',
+                '* 1 year warranty',
+                '* Easy returns'
+            ]
         }
     ]
 
@@ -204,7 +208,7 @@ const ProductDetailPage = () => {
                                     Add to bag
                                 </button>
 
-                                <button
+                                {/* <button
                                     type="button"
                                     className="ml-4 flex items-center justify-center rounded-md px-3 py-3 text-gray-400 hover:bg-gray-100 hover:text-gray-500"
                                 >
@@ -215,7 +219,7 @@ const ProductDetailPage = () => {
                                     <span className="sr-only">
                                         Add to favorites
                                     </span>
-                                </button>
+                                </button> */}
                             </div>
                         </div>
 

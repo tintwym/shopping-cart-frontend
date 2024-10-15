@@ -8,6 +8,7 @@ import OrderHistoryPage from '@/pages/OrderHistoryPage'
 import NotFoundPage from '@/pages/NotFoundPage'
 import RegisterPage from '@/pages/RegisterPage'
 import UserProfilePage from '@/pages/UserProfilePage'
+import ReviewPage from '@/pages/ReviewPage'
 
 // Check if the user is authenticated by checking for a token in localStorage
 const isAuthenticated = () => {
@@ -87,6 +88,14 @@ const AppRouter = () => {
                 element={
                     <Layout>
                         <UserProfilePage />
+                    </Layout>
+                }
+            />
+            <Route
+                path="/products/reviews/create"
+                element={
+                    <Layout>
+                        <ReviewPage />
                     </Layout>
                 }
             />

@@ -3,12 +3,13 @@ import { EllipsisVerticalIcon } from '@heroicons/react/24/outline'
 import { CheckCircleIcon } from '@heroicons/react/20/solid'
 import axios from 'axios'
 import { useState, useEffect } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { ORDER_HISTORY } from '@/utilities/constants' // You can define this constant as `/api/orders/history`
 
 const OrderHistoryPage = () => {
     const [orders, setOrders] = useState([]) // State to hold orders
     const [loading, setLoading] = useState(true) // Loading state
+    const navigate = useNavigate()
 
     useEffect(() => {
         const fetchOrderHistory = async () => {
@@ -46,6 +47,22 @@ const OrderHistoryPage = () => {
         return (
             <div className="h-[44rem] flex items-center justify-center">
                 Loading . . .
+            </div>
+        )
+    }
+
+    if (orders.length === 0) {
+        return (
+            <div className="h-[44rem] flex flex-col items-center justify-center">
+                <h2 className="text-2xl font-semibold text-gray-700 mb-8">
+                    No orders found!
+                </h2>
+                <button
+                    onClick={() => navigate('/')}
+                    className="bg-teal-600 text-white px-4 py-2 rounded-md shadow-sm hover:bg-teal-500"
+                >
+                    Go Shopping
+                </button>
             </div>
         )
     }
@@ -105,7 +122,14 @@ const OrderHistoryPage = () => {
                                                     Total amount
                                                 </dt>
                                                 <dd className="mt-1 font-medium text-gray-900">
-                                                    S${order.totalPrice}
+                                                    {/* Calculate total with additional $5 and 9% tax */}
+                                                    S$
+                                                    {(
+                                                        order.totalPrice +
+                                                        5 +
+                                                        (order.totalPrice + 5) *
+                                                            0.09
+                                                    ).toFixed(2)}
                                                 </dd>
                                             </div>
                                         </dl>
@@ -129,13 +153,13 @@ const OrderHistoryPage = () => {
 
                                             <MenuItems
                                                 transition
-                                                className="absolute right-0 z-10 mt-2 w-40 origin-bottom-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 transition focus:outline-none data-[closed]:scale-95 data-[closed]:transform data-[closed]:opacity-0 data-[enter]:duration-100 data-[leave]:duration-75 data-[enter]:ease-out data-[leave]:ease-in"
+                                                className="absolute right-0 z-10 mt-2 w-40 origin-bottom-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 transition focus:outline-none"
                                             >
                                                 <div className="py-1">
                                                     <MenuItem>
                                                         <a
                                                             href="#"
-                                                            className="block px-4 py-2 text-sm text-gray-700 data-[focus]:bg-gray-100 data-[focus]:text-gray-900"
+                                                            className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                                                         >
                                                             View
                                                         </a>
@@ -143,7 +167,7 @@ const OrderHistoryPage = () => {
                                                     <MenuItem>
                                                         <a
                                                             href="#"
-                                                            className="block px-4 py-2 text-sm text-gray-700 data-[focus]:bg-gray-100 data-[focus]:text-gray-900"
+                                                            className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                                                         >
                                                             Invoice
                                                         </a>
@@ -229,7 +253,14 @@ const OrderHistoryPage = () => {
                                                     </div>
 
                                                     <div className="mt-6 flex items-center space-x-4 divide-x divide-gray-200 border-t border-gray-200 pt-4 text-sm font-medium sm:ml-4 sm:mt-0 sm:border-none sm:pt-0">
-                                                        <div className="flex flex-1 justify-center">
+                                                        <div className="flex flex-1 justify-center space-x-8">
+                                                            <Link
+                                                                to={`/products/reviews/create`}
+                                                                className="whitespace-nowrap text-teal-600 hover:text-teal-500"
+                                                            >
+                                                                Add Review
+                                                            </Link>
+
                                                             <Link
                                                                 to={`/products/${product.product.id}`}
                                                                 className="whitespace-nowrap text-teal-600 hover:text-teal-500"
@@ -237,14 +268,6 @@ const OrderHistoryPage = () => {
                                                                 View Product
                                                             </Link>
                                                         </div>
-                                                        {/* <div className="flex flex-1 justify-center pl-4">
-                                                            <a
-                                                                href="#"
-                                                                className="whitespace-nowrap text-teal-600 hover:text-teal-500"
-                                                            >
-                                                                Buy again
-                                                            </a>
-                                                        </div> */}
                                                     </div>
                                                 </div>
                                             </li>

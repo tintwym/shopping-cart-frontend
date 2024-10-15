@@ -244,7 +244,7 @@ export default function ProductPage() {
                                                     }/${
                                                         product.images[0].path
                                                     }`} // Use the image path from API response
-                                                    className="h-full w-full object-cover object-center"
+                                                    className="h-full w-full object-contain object-center"
                                                 />
                                             ) : (
                                                 <img
@@ -264,7 +264,7 @@ export default function ProductPage() {
                                                 {product.name}
                                             </Link>
                                         </h3>
-                                        <p className="mt-1 text-sm text-gray-500">
+                                        <p className="mt-1 text-sm text-gray-500 h-44">
                                             {product.description}
                                         </p>
                                     </div>

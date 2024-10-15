@@ -272,7 +272,7 @@ const CartPage = () => {
                                                     </div>
                                                 </div>
 
-                                                <p className="mt-4 flex space-x-2 text-sm text-gray-700">
+                                                {/* <p className="mt-4 flex space-x-2 text-sm text-gray-700">
                                                     {item.product.stock > 0 ? (
                                                         <CheckIcon
                                                             aria-hidden="true"
@@ -290,7 +290,7 @@ const CartPage = () => {
                                                             ? 'In stock'
                                                             : 'Out of stock'}
                                                     </span>
-                                                </p>
+                                                </p> */}
                                             </div>
                                         </li>
                                     ))}

@@ -3,7 +3,7 @@ import axios from 'axios'
 import toast, { Toaster } from 'react-hot-toast'
 
 const UserProfilePage = () => {
-    // State to hold form data
+    // State to hold form data for address and user info separately
     const [formData, setFormData] = useState({
         address1: '',
         address2: '',
@@ -15,15 +15,22 @@ const UserProfilePage = () => {
         zipCode: ''
     })
 
-    // Fetch the profile data on page load
+    const [userData, setUserData] = useState({
+        firstName: '',
+        lastName: '',
+        username: '',
+        email: ''
+    })
+
+    // Fetch the address data
     useEffect(() => {
-        const token = localStorage.getItem('token') // Get the token from local storage
+        const token = localStorage.getItem('token')
         if (!token) {
             toast.error('Authorization token is missing!')
             return
         }
 
-        // Call API to get the profile data
+        // Call API to get the profile (address) data
         axios
             .get('http://localhost:8080/api/users/profiles/show', {
                 headers: {
@@ -49,9 +56,41 @@ const UserProfilePage = () => {
                 console.error('Error fetching profile data:', error)
                 toast.error('Failed to load profile data.')
             })
-    }, []) // Empty dependency array ensures this runs only on mount
+    }, [])
 
-    // Handle form input changes
+    // Fetch the user data (separately)
+    useEffect(() => {
+        const token = localStorage.getItem('token')
+        if (!token) {
+            toast.error('Authorization token is missing!')
+            return
+        }
+
+        // Call API to get user details
+        axios
+            .get('http://localhost:8080/api/users/token', {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            })
+            .then((response) => {
+                const userData = response.data
+                if (userData) {
+                    setUserData({
+                        firstName: userData.firstName || '',
+                        lastName: userData.lastName || '',
+                        username: userData.username || '',
+                        email: userData.email || ''
+                    })
+                }
+            })
+            .catch((error) => {
+                console.error('Error fetching user data:', error)
+                toast.error('Failed to load user data.')
+            })
+    }, [])
+
+    // Handle form input changes for address
     const handleChange = (e) => {
         setFormData({
             ...formData,
@@ -59,7 +98,7 @@ const UserProfilePage = () => {
         })
     }
 
-    // Handle form submission
+    // Handle form submission to save address
     const handleSave = async (e) => {
         e.preventDefault()
         const token = localStorage.getItem('token')
@@ -92,6 +131,104 @@ const UserProfilePage = () => {
             <form className="p-16" onSubmit={handleSave}>
                 {/* Set the position of the Toaster to bottom-right */}
                 <Toaster position="bottom-right" reverseOrder={false} />
+
+                {/* User information section */}
+                <div className="space-y-12 mb-10">
+                    <div className="grid grid-cols-1 gap-x-8 gap-y-10 border-b border-gray-900/10 pb-12 md:grid-cols-3">
+                        <div>
+                            <h2 className="text-base font-semibold leading-7 text-gray-900">
+                                User Information
+                            </h2>
+                            <p className="mt-1 text-sm leading-6 text-gray-600">
+                                Personal details and contact information.
+                            </p>
+                        </div>
+
+                        <div className="grid max-w-2xl grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6 md:col-span-2">
+                            {/* First Name */}
+                            <div className="sm:col-span-3">
+                                <label
+                                    htmlFor="firstName"
+                                    className="block text-sm font-medium leading-6 text-gray-900"
+                                >
+                                    First Name
+                                </label>
+                                <div className="mt-2">
+                                    <input
+                                        id="firstName"
+                                        name="firstName"
+                                        type="text"
+                                        value={userData.firstName}
+                                        disabled
+                                        className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 bg-gray-100 cursor-not-allowed sm:text-sm sm:leading-6"
+                                    />
+                                </div>
+                            </div>
+
+                            {/* Last Name */}
+                            <div className="sm:col-span-3">
+                                <label
+                                    htmlFor="lastName"
+                                    className="block text-sm font-medium leading-6 text-gray-900"
+                                >
+                                    Last Name
+                                </label>
+                                <div className="mt-2">
+                                    <input
+                                        id="lastName"
+                                        name="lastName"
+                                        type="text"
+                                        value={userData.lastName}
+                                        disabled
+                                        className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 bg-gray-100 cursor-not-allowed sm:text-sm sm:leading-6"
+                                    />
+                                </div>
+                            </div>
+
+                            {/* Username */}
+                            <div className="sm:col-span-6">
+                                <label
+                                    htmlFor="username"
+                                    className="block text-sm font-medium leading-6 text-gray-900"
+                                >
+                                    Username
+                                </label>
+                                <div className="mt-2">
+                                    <input
+                                        id="username"
+                                        name="username"
+                                        type="text"
+                                        value={userData.username}
+                                        disabled
+                                        className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 bg-gray-100 cursor-not-allowed sm:text-sm sm:leading-6"
+                                    />
+                                </div>
+                            </div>
+
+                            {/* Email */}
+                            <div className="sm:col-span-6">
+                                <label
+                                    htmlFor="email"
+                                    className="block text-sm font-medium leading-6 text-gray-900"
+                                >
+                                    Email
+                                </label>
+                                <div className="mt-2">
+                                    <input
+                                        id="email"
+                                        name="email"
+                                        type="email"
+                                        value={userData.email}
+                                        disabled
+                                        className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 bg-gray-100 cursor-not-allowed sm:text-sm sm:leading-6"
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Address section */}
                 <div className="space-y-12">
                     <div className="grid grid-cols-1 gap-x-8 gap-y-10 border-b border-gray-900/10 pb-12 md:grid-cols-3">
                         <div>
