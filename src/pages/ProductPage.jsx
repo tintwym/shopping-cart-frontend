@@ -264,7 +264,7 @@ export default function ProductPage() {
                                                 {product.name}
                                             </Link>
                                         </h3>
-                                        <p className="mt-1 text-sm text-gray-500 h-44">
+                                        <p className="mt-1 text-sm text-gray-500 h-44 text-ellipsis overflow-hidden">
                                             {product.description}
                                         </p>
                                     </div>
