@@ -220,90 +220,105 @@ export default function ProductPage() {
                     </button>
                 </div>
 
-                <h2 className="text-xl font-bold text-gray-900">Products</h2>
+                {filteredProducts.length > 0 ? (
+                    <>
+                        <h2 className="text-xl font-bold text-gray-900">
+                            Products
+                        </h2>
+                        <div
+                            id="products"
+                            ref={productsRef}
+                            className="mt-8 grid grid-cols-1 gap-y-12 sm:grid-cols-2 sm:gap-x-6 lg:grid-cols-4 xl:gap-x-8"
+                        >
+                            {currentProducts.map((product) => (
+                                <div key={product.id}>
+                                    <div>
+                                        <div className="relative">
+                                            <div className="relative h-72 w-full overflow-hidden rounded-lg">
+                                                {/* Check if product has images and use the first one */}
+                                                <Link
+                                                    to={`/products/${product.id}`}
+                                                >
+                                                    {product.images &&
+                                                    product.images.length >
+                                                        0 ? (
+                                                        <img
+                                                            alt={
+                                                                product
+                                                                    .images[0]
+                                                                    .altText
+                                                            }
+                                                            src={`${
+                                                                import.meta.env
+                                                                    .VITE_IMAGE_URL
+                                                            }/${
+                                                                product
+                                                                    .images[0]
+                                                                    .path
+                                                            }`} // Use the image path from API response
+                                                            className="h-full w-full object-contain object-center"
+                                                        />
+                                                    ) : (
+                                                        <img
+                                                            alt="Placeholder"
+                                                            src="https://tailwindui.com/plus/img/ecommerce-images/product-page-03-related-product-01.jpg" // Fallback placeholder image
+                                                            className="h-full w-full object-cover object-center"
+                                                        />
+                                                    )}
+                                                </Link>
+                                            </div>
+                                            <div className="relative mt-4">
+                                                <h3 className="text-sm font-medium text-gray-900">
+                                                    {/* Wrap product name in Link to the product detail page */}
+                                                    <Link
+                                                        to={`/products/${product.id}`}
+                                                    >
+                                                        {product.name}
+                                                    </Link>
+                                                </h3>
+                                                <p className="mt-1 text-sm text-gray-500 h-44">
+                                                    {product.description}
+                                                </p>
+                                            </div>
+                                            <div className="absolute inset-x-0 top-0 flex h-72 items-end justify-end overflow-hidden rounded-lg p-4">
+                                                <div
+                                                    aria-hidden="true"
+                                                    className="absolute inset-x-0 bottom-0 h-36 bg-gradient-to-t from-black opacity-50"
+                                                />
+                                                <p className="relative text-lg font-semibold text-white">
+                                                    S${product.price}
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div className="mt-6 space-y-4">
+                                            <button className="w-full">
+                                                <Link
+                                                    to={`/products/${product.id}`}
+                                                    className="relative w-full flex items-center justify-center rounded-md border border-transparent bg-teal-600 px-8 py-2 text-sm font-medium text-white hover:bg-teal-500"
+                                                >
+                                                    View Product
+                                                </Link>
+                                            </button>
 
-                <div
-                    id="products"
-                    ref={productsRef}
-                    className="mt-8 grid grid-cols-1 gap-y-12 sm:grid-cols-2 sm:gap-x-6 lg:grid-cols-4 xl:gap-x-8"
-                >
-                    {currentProducts.map((product) => (
-                        <div key={product.id}>
-                            <div>
-                                <div className="relative">
-                                    <div className="relative h-72 w-full overflow-hidden rounded-lg">
-                                        {/* Check if product has images and use the first one */}
-                                        <Link to={`/products/${product.id}`}>
-                                            {product.images &&
-                                            product.images.length > 0 ? (
-                                                <img
-                                                    alt={
-                                                        product.images[0]
-                                                            .altText
-                                                    }
-                                                    src={`${
-                                                        import.meta.env
-                                                            .VITE_IMAGE_URL
-                                                    }/${
-                                                        product.images[0].path
-                                                    }`} // Use the image path from API response
-                                                    className="h-full w-full object-contain object-center"
-                                                />
-                                            ) : (
-                                                <img
-                                                    alt="Placeholder"
-                                                    src="https://tailwindui.com/plus/img/ecommerce-images/product-page-03-related-product-01.jpg" // Fallback placeholder image
-                                                    className="h-full w-full object-cover object-center"
-                                                />
-                                            )}
-                                        </Link>
-                                    </div>
-                                    <div className="relative mt-4">
-                                        <h3 className="text-sm font-medium text-gray-900">
-                                            {/* Wrap product name in Link to the product detail page */}
-                                            <Link
-                                                to={`/products/${product.id}`}
+                                            <button
+                                                onClick={() =>
+                                                    handleAddToCart(product.id)
+                                                }
+                                                className="relative w-full flex items-center justify-center rounded-md border border-transparent bg-gray-100 px-8 py-2 text-sm font-medium text-gray-900 hover:bg-gray-200"
                                             >
-                                                {product.name}
-                                            </Link>
-                                        </h3>
-                                        <p className="mt-1 text-sm text-gray-500 h-40 text-clip overflow-hidden">
-                                            {product.description}
-                                        </p>
-                                    </div>
-                                    <div className="absolute inset-x-0 top-0 flex h-72 items-end justify-end overflow-hidden rounded-lg p-4">
-                                        <div
-                                            aria-hidden="true"
-                                            className="absolute inset-x-0 bottom-0 h-36 bg-gradient-to-t from-black opacity-50"
-                                        />
-                                        <p className="relative text-lg font-semibold text-white">
-                                            S${product.price}
-                                        </p>
+                                                Add to bag
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
-                                <div className="mt-6 space-y-4">
-                                    <button className="w-full">
-                                        <Link
-                                            to={`/products/${product.id}`}
-                                            className="relative w-full flex items-center justify-center rounded-md border border-transparent bg-teal-600 px-8 py-2 text-sm font-medium text-white hover:bg-teal-500"
-                                        >
-                                            View Product
-                                        </Link>
-                                    </button>
-
-                                    <button
-                                        onClick={() =>
-                                            handleAddToCart(product.id)
-                                        }
-                                        className="relative w-full flex items-center justify-center rounded-md border border-transparent bg-gray-100 px-8 py-2 text-sm font-medium text-gray-900 hover:bg-gray-200"
-                                    >
-                                        Add to bag
-                                    </button>
-                                </div>
-                            </div>
+                            ))}
                         </div>
-                    ))}
-                </div>
+                    </>
+                ) : (
+                    <div className="mt-8 min-h-[30rem] flex items-center justify-center text-center text-gray-500">
+                        <p className="text-2xl">No products found!</p>
+                    </div>
+                )}
 
                 {/* Pagination */}
                 {totalPages > 1 && (

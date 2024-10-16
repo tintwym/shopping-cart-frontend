@@ -65,7 +65,11 @@ const ProductDetailPage = () => {
 
     // If loading or no product data, show a loading message or placeholder
     if (loading || !product) {
-        return <div>Loading...</div>
+        return (
+            <div className="flex items-center justify-center min-h-[40rem] text-2xl">
+                Loading . . .
+            </div>
+        )
     }
 
     // Add product to cart
