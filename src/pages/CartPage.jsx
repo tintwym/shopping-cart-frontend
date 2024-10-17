@@ -312,17 +312,8 @@ const CartPage = () => {
                                         <dt className="text-sm text-gray-600">
                                             Tax (GST - 9%)
                                         </dt>
-                                        <dd className="text-base font-medium text-gray-900">
-                                            S$
+                                        <dd className="text-sm font-medium text-gray-900">
                                             {(
-                                                cartItems.reduce(
-                                                    (acc, item) =>
-                                                        acc +
-                                                        item.price *
-                                                            item.quantity,
-                                                    0
-                                                ) +
-                                                5 +
                                                 (cartItems.reduce(
                                                     (acc, item) =>
                                                         acc +
@@ -331,7 +322,7 @@ const CartPage = () => {
                                                     0
                                                 ) +
                                                     5) *
-                                                    0.09
+                                                0.09
                                             ).toFixed(2)}
                                         </dd>
                                     </div>
