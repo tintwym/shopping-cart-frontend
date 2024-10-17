@@ -122,14 +122,7 @@ const OrderHistoryPage = () => {
                                                     Total amount
                                                 </dt>
                                                 <dd className="mt-1 font-medium text-gray-900">
-                                                    {/* Calculate total with additional $5 and 9% tax */}
-                                                    S$
-                                                    {(
-                                                        order.totalPrice +
-                                                        5 +
-                                                        (order.totalPrice + 5) *
-                                                            0.09
-                                                    ).toFixed(2)}
+                                                    S${order.totalPrice}
                                                 </dd>
                                             </div>
                                         </dl>

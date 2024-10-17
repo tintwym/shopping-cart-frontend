@@ -300,57 +300,22 @@ const CartPage = () => {
                                                 .toFixed(2)}
                                         </dd>
                                     </div>
-                                    <div className="flex items-center justify-between border-t border-gray-200 pt-4">
-                                        <dt className="text-sm text-gray-600">
-                                            Delivery Fee
-                                        </dt>
-                                        <dd className="text-sm font-medium text-gray-900">
-                                            S$5.00
-                                        </dd>
-                                    </div>
-                                    <div className="flex items-center justify-between border-t border-gray-200 pt-4">
-                                        <dt className="text-sm text-gray-600">
-                                            Tax (GST - 9%)
-                                        </dt>
-                                        <dd className="text-sm font-medium text-gray-900">
-                                            {(
-                                                (cartItems.reduce(
-                                                    (acc, item) =>
-                                                        acc +
-                                                        item.price *
-                                                            item.quantity,
-                                                    0
-                                                ) +
-                                                    5) *
-                                                0.09
-                                            ).toFixed(2)}
-                                        </dd>
-                                    </div>
+                                    {/* Removed Shipping Fee and Tax */}
                                     <div className="flex items-center justify-between border-t border-gray-200 pt-4">
                                         <dt className="text-base font-medium text-gray-900">
-                                            Order total
+                                            Total Price
                                         </dt>
                                         <dd className="text-base font-medium text-gray-900">
                                             S$
-                                            {(
-                                                cartItems.reduce(
+                                            {cartItems
+                                                .reduce(
                                                     (acc, item) =>
                                                         acc +
                                                         item.price *
                                                             item.quantity,
                                                     0
-                                                ) +
-                                                5 +
-                                                (cartItems.reduce(
-                                                    (acc, item) =>
-                                                        acc +
-                                                        item.price *
-                                                            item.quantity,
-                                                    0
-                                                ) +
-                                                    5) *
-                                                    0.09
-                                            ).toFixed(2)}
+                                                )
+                                                .toFixed(2)}
                                         </dd>
                                     </div>
                                 </dl>
