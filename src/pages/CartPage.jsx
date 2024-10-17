@@ -9,6 +9,8 @@ import { CART, REMOVE_FROM_CART, UPDATE_CART } from '@/utilities/constants'
 import { useCart } from '@/context/CartContext'
 import { loadStripe } from '@stripe/stripe-js'
 import axiosInstance from '@/api/axiosInstance'
+import { useLocation } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 // Initialize Stripe with the publishable key from your environment
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY)
@@ -17,6 +19,8 @@ const CartPage = () => {
     const [cartItems, setCartItems] = useState([])
     const [loading, setLoading] = useState(true)
     const { updateCartCount } = useCart()
+    const location = useLocation()
+    const navigate = useNavigate()
 
     // Fetch cart items when component mounts
     useEffect(() => {
@@ -36,7 +40,14 @@ const CartPage = () => {
                         }
                     }
                 )
-                setCartItems(response.data?.cartItems || [])
+
+                const updatedCartItems =
+                    response.data?.cartItems.map((item) => ({
+                        ...item,
+                        price: item.product.price
+                    })) || []
+
+                setCartItems(updatedCartItems)
             } catch (error) {
                 console.error('Error fetching cart items:', error)
             } finally {
@@ -45,7 +56,46 @@ const CartPage = () => {
         }
 
         fetchCartItems()
-    }, [])
+    }, [location])
+
+    const handleCheckout = async () => {
+        const token = localStorage.getItem('token')
+        if (!token) {
+            window.location.href = '/login'
+            return
+        }
+
+        try {
+            const response = await axiosInstance.post(
+                `${import.meta.env.VITE_BACKEND_URL}/checkout`,
+                {
+                    items: cartItems.map((item) => ({
+                        productId: item.product.stripeProductId,
+                        priceId: item.product.stripePriceId,
+                        quantity: item.quantity
+                    }))
+                },
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                }
+            )
+
+            const { sessionId } = response.data
+            if (sessionId) {
+                const stripe = await stripePromise
+                await stripe.redirectToCheckout({ sessionId })
+
+                // After checkout, programmatically navigate back to the cart page
+                navigate('/cart')
+            } else {
+                console.error('No sessionId received from the backend.')
+            }
+        } catch (error) {
+            console.error('Error during checkout:', error)
+        }
+    }
 
     // Function to handle removing an item from the cart
     const handleRemoveItem = async (productId) => {
@@ -106,43 +156,6 @@ const CartPage = () => {
             }
         } catch (error) {
             console.error('Error updating cart item:', error)
-        }
-    }
-
-    // Function to handle Stripe checkout
-    const handleCheckout = async () => {
-        const token = localStorage.getItem('token')
-        if (!token) {
-            window.location.href = '/login'
-            return
-        }
-
-        try {
-            const response = await axiosInstance.post(
-                `${import.meta.env.VITE_BACKEND_URL}/checkout`,
-                {
-                    items: cartItems.map((item) => ({
-                        productId: item.product.stripeProductId,
-                        priceId: item.product.stripePriceId,
-                        quantity: item.quantity
-                    }))
-                },
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`
-                    }
-                }
-            )
-
-            const { sessionId } = response.data
-            if (sessionId) {
-                const stripe = await stripePromise
-                await stripe.redirectToCheckout({ sessionId })
-            } else {
-                console.error('No sessionId received from the backend.')
-            }
-        } catch (error) {
-            console.error('Error during checkout:', error)
         }
     }
 
