@@ -32,9 +32,13 @@ export const CartProvider = ({ children }) => {
         fetchCartCount() // Initial fetch of cart count
     }, [])
 
-    // Function to trigger a cart count update
-    const updateCartCount = () => {
-        fetchCartCount() // Re-fetch the cart count from the backend
+    // Function to directly update the cart count
+    const updateCartCount = (newCount) => {
+        if (typeof newCount === 'number') {
+            setCartCount(newCount) // Set cart count directly if a number is provided
+        } else {
+            fetchCartCount() // Re-fetch the cart count from the backend if no value is provided
+        }
     }
 
     return (
