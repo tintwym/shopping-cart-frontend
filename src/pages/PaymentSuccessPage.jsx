@@ -35,7 +35,7 @@ const PaymentSuccessPage = () => {
         // Set a timeout to redirect to order history page after 5 seconds
         const timer = setTimeout(() => {
             navigate('/order-history')
-        }, 3000)
+        }, 2000)
 
         // Cleanup timeout when the component unmounts
         return () => clearTimeout(timer)

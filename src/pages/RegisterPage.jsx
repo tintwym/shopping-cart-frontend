@@ -81,18 +81,18 @@ const RegisterPage = () => {
 
             // Success toast
             toast.success('User registered successfully!', {
-                duration: 3000 // Show for 3 seconds
+                duration: 2000 // Show for 3 seconds
             })
 
             setTimeout(() => {
                 navigate('/') // Redirect to home page
-            }, 4000) // Wait for 4 seconds
+            }, 2000) // Wait for 4 seconds
         } catch (error) {
             console.log('Error registering user:', error)
 
             // Error toast
             toast.error('Failed to create user.', {
-                duration: 3000 // Show for 3 seconds
+                duration: 2000 // Show for 3 seconds
             })
         }
     }
