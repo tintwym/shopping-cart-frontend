@@ -11,6 +11,7 @@ import { loadStripe } from '@stripe/stripe-js'
 import axiosInstance from '@/api/axiosInstance'
 import { useLocation } from 'react-router-dom'
 import { useNavigate } from 'react-router-dom'
+import Swal from 'sweetalert2'
 
 // Initialize Stripe with the publishable key from your environment
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY)
@@ -65,13 +66,51 @@ const CartPage = () => {
             return
         }
 
+        // Find the items where product is deleted and map their names
+        const deletedProducts = cartItems
+            .filter((item) => item.product.deleted === true)
+            .map((item) => item.product.name)
+
+        // Filter out items where the product is deleted
+        const filteredCartItems = cartItems.filter(
+            (item) => item.product.deleted === false
+        )
+
+        console.log('Filtered cart items:', filteredCartItems)
+        console.log('Deleted product names:', deletedProducts)
+
+        // If all items are deleted, show the deleted products and prevent checkout
+        if (filteredCartItems.length === 0) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Oops . . .',
+                html: `Your cart contains deleted products: <span style="color: red;">${deletedProducts.join(
+                    ', '
+                )}</span> which cannot be checked out. Please remove them from your cart and try again.`,
+                confirmButtonColor: '#14b8a6', // Customize the OK button color here
+                confirmButtonText: 'Okay' // Optional: Customize the text on the button
+            })
+
+            return
+        }
+
+        // If there are deleted products but some valid ones remain, alert the user
+        if (deletedProducts.length > 0) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Deleted Products',
+                text: `The following products are deleted and will be removed from your cart: ${deletedProducts.join(
+                    ', '
+                )}`
+            })
+        }
+
         try {
             const response = await axiosInstance.post(
                 `${import.meta.env.VITE_BACKEND_URL}/checkout`,
                 {
-                    items: cartItems.map((item) => ({
-                        productId: item.product.stripeProductId,
-                        priceId: item.product.stripePriceId,
+                    items: filteredCartItems.map((item) => ({
+                        productId: item.product.id,
                         quantity: item.quantity
                     }))
                 },
