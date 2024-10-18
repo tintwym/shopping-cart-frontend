@@ -214,7 +214,7 @@ const CartPage = () => {
                                                 <img
                                                     alt={item.product.name}
                                                     src={`http://localhost:8080/images/products/${item.product.images[0].path}`}
-                                                    className="h-24 w-24 rounded-md object-cover object-center sm:h-48 sm:w-48"
+                                                    className="h-24 w-24 rounded-md object-contain object-center sm:h-48 sm:w-48"
                                                 />
                                             </div>
 

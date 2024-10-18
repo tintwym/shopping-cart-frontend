@@ -190,7 +190,7 @@ const OrderHistoryPage = () => {
                                                                         .name
                                                                 }
                                                                 src={`http://localhost:8080/images/products/${product.product.images[0].path}`}
-                                                                className="h-full w-full object-contain object-center"
+                                                                className="h-full w-full object-contain object-center bg-white"
                                                             />
                                                         </div>
                                                         <div className="ml-6 flex-1 text-sm">

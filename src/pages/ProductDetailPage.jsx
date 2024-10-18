@@ -133,7 +133,7 @@ const ProductDetailPage = () => {
                                             <img
                                                 alt={image.altText}
                                                 src={`http://localhost:8080/images/products/${image.path}`}
-                                                className="h-full w-full object-cover object-center"
+                                                className="h-full w-full object-contain object-center"
                                             />
                                         </span>
                                         <span
@@ -151,7 +151,7 @@ const ProductDetailPage = () => {
                                     <img
                                         alt={image.altText}
                                         src={`http://localhost:8080/images/products/${image.path}`}
-                                        className="h-full w-full object-cover object-center sm:rounded-lg"
+                                        className="h-full w-full object-contain object-center sm:rounded-lg"
                                     />
                                 </TabPanel>
                             ))}
